@@ -1,0 +1,15 @@
+# Copy to ./home-exit.yaml (gitignored) or ~/.config/home-exit/config.yaml
+#
+# Config search order:
+#   1. -config flag / HOME_EXIT_CONFIG env
+#   2. ./home-exit.yaml
+#   3. ~/.config/home-exit/config.yaml
+
+listen:
+  socks: 127.0.0.1:1080
+  http: 127.0.0.1:8080
+
+users:
+  # Relative paths are resolved next to the config file.
+  # Contains bcrypt hashes only — never commit real users.json.
+  file: users.json

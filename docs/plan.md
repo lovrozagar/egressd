@@ -44,7 +44,9 @@ Client --(auth)--> public endpoint (CF Tunnel or Tailscale IP)
 cmd/home-exit/          # CLI: up, users add/list, status
 internal/proxy/         # SOCKS5 + HTTP CONNECT + auth
 internal/config/
-deploy/cloudflared/     # example tunnel config
+internal/users/         # bcrypt-hashed client credentials
+home-exit.example.yaml
+deploy/cloudflared/     # example tunnel config (milestone 3)
 scripts/{macos,linux,windows}/
 docs/plan.md            # this file
 README.md               # clone-and-start
@@ -52,11 +54,11 @@ README.md               # clone-and-start
 
 ## Milestones
 
-1. **Go agent MVP** — local SOCKS5+HTTP with user/pass; bind localhost; `home-exit up`
-2. **User management** — `home-exit users add` writes hashed secrets
-3. **Tunnel profile** — cloudflared compose/docs so endpoint is reachable off-LAN
-4. **Cross-compile** — release binaries for darwin/linux/windows amd64+arm64
-5. **README polish** — true clone-and-start; security warnings
+1. [x] **Go agent MVP** — local SOCKS5+HTTP with user/pass; bind localhost; `home-exit up`
+2. [x] **User management** — `home-exit users add` writes hashed secrets
+3. [ ] **Tunnel profile** — cloudflared compose/docs so endpoint is reachable off-LAN
+4. [ ] **Cross-compile** — release binaries for darwin/linux/windows amd64+arm64
+5. [ ] **README polish** — true clone-and-start; security warnings (clone-and-start docs started in README)
 
 ## Security bar
 

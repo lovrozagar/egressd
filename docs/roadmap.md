@@ -7,10 +7,11 @@
 - [ ] macOS install script (`scripts/macos/setup-exit.sh`)
 - [ ] Security checklist (auth, no open LAN proxy, kill switch)
 
-## v1 — thin `exit-agent`
+## v1 — thin `home-exit` agent
 
-- [ ] Small Go (or Rust) binary: authenticated SOCKS5 + HTTP CONNECT
-- [ ] Bind to Tailscale IP / localhost only by default
+- [x] Small Go binary: authenticated SOCKS5 + HTTP CONNECT (`cmd/home-exit`)
+- [x] Bind to localhost by default (`127.0.0.1:1080` / `:8080`)
+- [x] User management with bcrypt hashes (`users add` / `users list`)
 - [ ] Optional Cloudflare Tunnel sidecar compose file
 - [ ] Windows PowerShell setup script
 

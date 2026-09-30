@@ -3,5 +3,12 @@
 .env.*
 !.env.example
 exit-agent/bin/
+bin/
 dist/
 *.exe
+
+# Local secrets / runtime state
+home-exit.yaml
+users.json
+users.json.tmp
+**/users.json

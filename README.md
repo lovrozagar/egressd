@@ -1,57 +1,95 @@
 # home-exit
 
-Turn a **real home (or mobile) internet connection** into a private SOCKS5 / HTTP egress for bots, browsers, and apps.
+Turn a **real home (or mobile) internet connection** into a private SOCKS5 / HTTP CONNECT egress for bots, browsers, and apps.
 
-This is **not** a commercial “residential proxy network” and **not** a Cloudflare/Hetzner VPS VPN. Those look like datacenters. This project makes *your* ISP IP available securely to machines you trust (e.g. a Grok Bot / CI box that gets blocked by X/Twitter).
-
-## Does this already exist?
-
-Mostly yes — as building blocks. We wrap and document the boring reliable stack instead of inventing new crypto.
-
-| Approach | Pros | Cons |
-|---|---|---|
-| **Tailscale exit node** + SOCKS (`tailsocks`, Tailscale `--socks5-server`) | Cross‑platform, no open ports, battle‑tested | Needs Tailscale account |
-| **SSH dynamic port forward** (`ssh -D`) | Zero install beyond OpenSSH | Needs reachability (port forward / tunnel) |
-| **Outline / Shadowsocks / SoftEther** | Mature VPN products | Heavier; still need a *home* host |
-| Paid residential proxies | Easy | Costs money; third party sees traffic |
-
-Closest ready-made repos: [ItalyPaleAle/tailsocks](https://github.com/ItalyPaleAle/tailsocks), [pkarpovich/vpn-exit-node](https://github.com/pkarpovich/vpn-exit-node), Tailscale’s own exit nodes.
-
-**home-exit** = opinionated glue: one home agent, auth’d proxy, Mac/Linux/Windows install scripts, and a client recipe for bots.
-
-## Platforms
-
-| Role | Linux | macOS | Windows |
-|---|---|---|---|
-| **Home exit host** (where the residential IP lives) | ✅ target | ✅ target | ✅ target |
-| **Client** (bot / laptop using the exit) | ✅ | ✅ | ✅ |
-
-Priority order for v0: **macOS + Linux** (your MacBook case), then Windows.
-
-## Architecture (v0)
-
-```
-[ Bot / browser ] --SOCKS5/HTTP--> [ tunnel ] --> [ home-exit agent on Mac/PC ]
-                                                      |
-                                                      v
-                                              home ISP / mobile IP
-```
-
-Recommended tunnel: **Tailscale** (no inbound ports). Fallback: **Cloudflare Tunnel** or SSH.
-
-Cloudflare *Workers/WARP regions* do **not** give you a residential Croatia IP. Cloudflare Tunnel is only the *pipe* to your home machine; egress still exits your house.
+This is **not** a commercial “residential proxy network” and **not** a Cloudflare/Hetzner VPS VPN. Those look like datacenters. This project makes *your* ISP IP available securely to machines you trust.
 
 ## Status
 
-Scaffolding. Roadmap in [`docs/roadmap.md`](docs/roadmap.md).
+**MVP (milestones 1–2):** local Go CLI with authenticated SOCKS5 + HTTP CONNECT, user management with bcrypt-hashed passwords. Tunnel / Tailscale profiles come next — see [`docs/plan.md`](docs/plan.md) and [`docs/roadmap.md`](docs/roadmap.md).
 
-## Quick start (planned)
+## Requirements
 
-1. Install Tailscale on the home machine → enable **Exit node**.
-2. On the client: run tailsocks / Tailscale SOCKS against that exit.
-3. Point the browser or app at `socks5://127.0.0.1:…`.
+- Go 1.22+
 
-See [`docs/why-not-cloud.md`](docs/why-not-cloud.md).
+## Quick start
+
+```bash
+git clone https://github.com/lovrozagar/home-exit.git
+cd home-exit
+cp home-exit.example.yaml home-exit.yaml
+
+# Create a client (password printed once; only bcrypt hash is stored)
+go run ./cmd/home-exit users add alice
+
+# Show config summary
+go run ./cmd/home-exit status
+
+# Start proxy (foreground)
+go run ./cmd/home-exit up
+```
+
+Or build a binary:
+
+```bash
+go build -o bin/home-exit ./cmd/home-exit
+./bin/home-exit users add alice
+./bin/home-exit up
+```
+
+### Connect examples
+
+With the password from `users add`:
+
+```bash
+curl -x socks5h://alice:PASS@127.0.0.1:1080 https://ifconfig.me
+curl -x http://alice:PASS@127.0.0.1:8080 https://ifconfig.me
+```
+
+Anonymous / wrong credentials are rejected. Auth is always required.
+
+## Config
+
+Search order:
+
+1. `-config` flag or `HOME_EXIT_CONFIG` env
+2. `./home-exit.yaml`
+3. `~/.config/home-exit/config.yaml`
+
+Defaults (also in `home-exit.example.yaml`):
+
+| Key | Default |
+|---|---|
+| `listen.socks` | `127.0.0.1:1080` |
+| `listen.http` | `127.0.0.1:8080` |
+| `users.file` | `users.json` (next to the config file) |
+
+`home-exit.yaml` and `users.json` are gitignored — do not commit secrets. Hashes only land in `users.json`.
+
+## CLI
+
+| Command | Description |
+|---|---|
+| `home-exit up` | Start SOCKS5 + HTTP CONNECT (foreground) |
+| `home-exit status` | Print listen addrs / users count (`running` is N/A in v1) |
+| `home-exit users add <name>` | Create user; print random password once |
+| `home-exit users list` | List usernames (no secrets) |
+
+## Security
+
+- Default bind is **localhost only** until you add a tunnel (Tailscale / Cloudflare Tunnel — planned).
+- No anonymous access.
+- Sharing credentials shares your home IP and legal exposure — treat them like SSH keys.
+- See [`docs/why-not-cloud.md`](docs/why-not-cloud.md).
+
+## Architecture
+
+```
+[ Bot / browser ] --SOCKS5/HTTP + auth--> [ home-exit agent ]
+                                              |
+                                              v
+                                      home ISP / mobile IP
+```
 
 ## License
 

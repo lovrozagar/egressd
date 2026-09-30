@@ -1,10 +1,10 @@
-# home-exit — build plan
+# egressd — build plan
 
 ## Goal
 
-Clone → start on a home machine → get a shareable authenticated proxy endpoint. Clients (browsers, apps, bots) connect with credentials. Egress uses the host’s real ISP IP (residential).
+Clone → start on any machine with a real ISP or mobile connection → get a shareable authenticated proxy endpoint. Clients (browsers, apps, bots) connect with credentials. Egress uses the host’s real ISP IP (residential / consumer ASN — home, office, or mobile).
 
-Not: commercial residential marketplace, Cloudflare/Hetzner “fake home”, or bot-only coupling.
+Not: commercial residential marketplace, Cloudflare/Hetzner “fake residential”, or bot-only coupling.
 
 ## Stack (v1)
 
@@ -15,14 +15,14 @@ Not: commercial residential marketplace, Cloudflare/Hetzner “fake home”, or 
 | Auth | **Username + password** (per-client secrets) | Simple; works with every SOCKS/HTTP client |
 | Public reachability | **Cloudflare Tunnel** (`cloudflared`) as default | No router port-forward; free; TCP via `cloudflared` private routing **or** published hostname patterns we document |
 | Alt reachability | **Tailscale** (optional profile) | Zero open ports; great if both sides run Tailscale |
-| Config | `home-exit.yaml` + env | Clone-and-edit |
-| UX | `home-exit up` CLI | Prints connect URL + example curl |
+| Config | `egressd.yaml` + env | Clone-and-edit |
+| UX | `egressd up` CLI | Prints connect URL + example curl |
 
 **Explicit non-goals for v1:** rotating IP pools, bandwidth marketplace, GUI, mobile app store builds.
 
 ### Cloudflare note
 
-Cloudflare Tunnel is the **pipe to your house**, not the exit ASN. Traffic still leaves via home ISP. We will **not** claim CF region pinning = residential.
+Cloudflare Tunnel is the **pipe to the egress host**, not the exit ASN. Traffic still leaves via that host’s ISP. We will **not** claim CF region pinning = residential.
 
 If Cloudflare TCP expose is awkward for raw SOCKS, fallback path: tunnel SSH or use Tailscale profile; document both.
 
@@ -32,20 +32,20 @@ If Cloudflare TCP expose is awkward for raw SOCKS, fallback path: tunnel SSH or 
 Client --(auth)--> public endpoint (CF Tunnel or Tailscale IP)
                          |
                          v
-              home-exit agent (Go) on Mac/Linux/Windows
+              egressd agent (Go) on Mac/Linux/Windows
                          |
                          v
-                   home ISP / Wi‑Fi / LTE
+                   ISP / Wi‑Fi / LTE egress IP
 ```
 
 ## Repo layout (target)
 
 ```
-cmd/home-exit/          # CLI: up, users add/list, status
+cmd/egressd/          # CLI: up, users add/list, status
 internal/proxy/         # SOCKS5 + HTTP CONNECT + auth
 internal/config/
 internal/users/         # bcrypt-hashed client credentials
-home-exit.example.yaml
+egressd.example.yaml
 deploy/cloudflared/     # example tunnel config (milestone 3)
 scripts/{macos,linux,windows}/
 docs/plan.md            # this file
@@ -54,8 +54,8 @@ README.md               # clone-and-start
 
 ## Milestones
 
-1. [x] **Go agent MVP** — local SOCKS5+HTTP with user/pass; bind localhost; `home-exit up`
-2. [x] **User management** — `home-exit users add` writes hashed secrets
+1. [x] **Go agent MVP** — local SOCKS5+HTTP with user/pass; bind localhost; `egressd up`
+2. [x] **User management** — `egressd users add` writes hashed secrets
 3. [ ] **Tunnel profile** — cloudflared compose/docs so endpoint is reachable off-LAN
 4. [ ] **Cross-compile** — release binaries for darwin/linux/windows amd64+arm64
 5. [ ] **README polish** — true clone-and-start; security warnings (clone-and-start docs started in README)
@@ -65,8 +65,8 @@ README.md               # clone-and-start
 - Default bind: localhost / Tailscale IP only until tunnel is configured
 - No anonymous access
 - Rate-limit failed auth
-- Clear warning: sharing creds shares your home IP & legal exposure
+- Clear warning: sharing creds shares your egress IP & legal exposure
 
 ## Success check
 
-From a second network: `curl -x socks5h://user:pass@ENDPOINT:PORT https://ifconfig.me` returns the **home** public IP.
+From a second network: `curl -x socks5h://user:pass@ENDPOINT:PORT https://ifconfig.me` returns the host’s **real ISP** public IP.

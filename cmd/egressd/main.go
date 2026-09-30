@@ -10,9 +10,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/lovrozagar/home-exit/internal/config"
-	"github.com/lovrozagar/home-exit/internal/proxy"
-	"github.com/lovrozagar/home-exit/internal/users"
+	"github.com/lovrozagar/egressd/internal/config"
+	"github.com/lovrozagar/egressd/internal/proxy"
+	"github.com/lovrozagar/egressd/internal/users"
 )
 
 func main() {
@@ -39,29 +39,29 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `home-exit — authenticated SOCKS5 + HTTP CONNECT egress
+	fmt.Fprintf(os.Stderr, `egressd — authenticated SOCKS5 + HTTP CONNECT egress
 
 Usage:
-  home-exit up                 Start the proxy (foreground)
-  home-exit status             Print config summary
-  home-exit users add <name>   Create a client; prints password once
-  home-exit users list         List usernames (no secrets)
+  egressd up                 Start the proxy (foreground)
+  egressd status             Print config summary
+  egressd users add <name>   Create a client; prints password once
+  egressd users list         List usernames (no secrets)
 
 Flags (all commands):
-  -config path   Config file (also: HOME_EXIT_CONFIG)
+  -config path   Config file (also: EGRESSD_CONFIG)
 
 Config search order:
-  1. -config / HOME_EXIT_CONFIG
-  2. ./home-exit.yaml
-  3. ~/.config/home-exit/config.yaml
+  1. -config / EGRESSD_CONFIG
+  2. ./egressd.yaml
+  3. ~/.config/egressd/config.yaml
 
 `)
 }
 
 func parseConfigFlag(args []string) (remaining []string, cfgPath string, err error) {
-	fs := flag.NewFlagSet("home-exit", flag.ContinueOnError)
+	fs := flag.NewFlagSet("egressd", flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
-	cfg := fs.String("config", "", "path to home-exit.yaml")
+	cfg := fs.String("config", "", "path to egressd.yaml")
 	if err := fs.Parse(args); err != nil {
 		return nil, "", err
 	}
@@ -97,7 +97,7 @@ func cmdUp(args []string) int {
 		return 1
 	}
 	if store.Count() == 0 {
-		fmt.Fprintf(os.Stderr, "no users configured — run: home-exit users add <name>\n(users file: %s)\n", usersPath)
+		fmt.Fprintf(os.Stderr, "no users configured — run: egressd users add <name>\n(users file: %s)\n", usersPath)
 		return 1
 	}
 
@@ -140,13 +140,13 @@ func cmdStatus(args []string) int {
 	}
 	fmt.Print(cfg.Summary(cfgPath, usersPath))
 	fmt.Printf("users:   %d configured\n", store.Count())
-	fmt.Println("running: N/A (v1 is a foreground process; use `home-exit up`)")
+	fmt.Println("running: N/A (v1 is a foreground process; use `egressd up`)")
 	return 0
 }
 
 func cmdUsers(args []string) int {
 	if len(args) < 1 {
-		fmt.Fprintln(os.Stderr, "usage: home-exit users add <name> | home-exit users list")
+		fmt.Fprintln(os.Stderr, "usage: egressd users add <name> | egressd users list")
 		return 2
 	}
 	switch args[0] {
@@ -164,7 +164,7 @@ func cmdUsersAdd(args []string) int {
 	cfgFlag, name, err := parseUsersAddArgs(args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		fmt.Fprintln(os.Stderr, "usage: home-exit users add <name> [-config path]")
+		fmt.Fprintln(os.Stderr, "usage: egressd users add <name> [-config path]")
 		return 2
 	}
 	cfgPath, err := config.FindPath(cfgFlag)

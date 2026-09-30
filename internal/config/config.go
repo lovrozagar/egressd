@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Config is the on-disk home-exit configuration.
+// Config is the on-disk egressd configuration.
 type Config struct {
 	Listen ListenConfig `yaml:"listen"`
 	Users  UsersConfig  `yaml:"users"`
@@ -40,17 +40,17 @@ func Default() Config {
 
 // FindPath resolves the config file path.
 // Precedence:
-//  1. path if non-empty (explicit -config / HOME_EXIT_CONFIG)
-//  2. ./home-exit.yaml
-//  3. ~/.config/home-exit/config.yaml
+//  1. path if non-empty (explicit -config / EGRESSD_CONFIG)
+//  2. ./egressd.yaml
+//  3. ~/.config/egressd/config.yaml
 func FindPath(explicit string) (string, error) {
 	if explicit != "" {
 		return explicit, nil
 	}
-	if env := os.Getenv("HOME_EXIT_CONFIG"); env != "" {
+	if env := os.Getenv("EGRESSD_CONFIG"); env != "" {
 		return env, nil
 	}
-	cwd := "home-exit.yaml"
+	cwd := "egressd.yaml"
 	if _, err := os.Stat(cwd); err == nil {
 		return cwd, nil
 	}
@@ -58,7 +58,7 @@ func FindPath(explicit string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("config: home dir: %w", err)
 	}
-	return filepath.Join(home, ".config", "home-exit", "config.yaml"), nil
+	return filepath.Join(home, ".config", "egressd", "config.yaml"), nil
 }
 
 // Load reads YAML from path. Missing file returns Default with the path noted.
@@ -96,7 +96,7 @@ func (c Config) UsersFilePath(configPath string) string {
 	if dir == "." || dir == "" {
 		return c.Users.File
 	}
-	// If config came from ~/.config/home-exit/config.yaml, keep users next to it.
+	// If config came from ~/.config/egressd/config.yaml, keep users next to it.
 	return filepath.Join(dir, c.Users.File)
 }
 

@@ -8,7 +8,7 @@ import (
 
 func TestLoadDefaultsAndOverrides(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, "home-exit.yaml")
+	path := filepath.Join(dir, "egressd.yaml")
 	content := []byte("listen:\n  socks: 127.0.0.1:1901\n  http: 127.0.0.1:1902\nusers:\n  file: my-users.json\n")
 	if err := os.WriteFile(path, content, 0o600); err != nil {
 		t.Fatal(err)

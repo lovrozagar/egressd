@@ -1,8 +1,8 @@
-# home-exit
+# egressd
 
-Turn a **real home (or mobile) internet connection** into a private SOCKS5 / HTTP CONNECT egress for bots, browsers, and apps.
+Self-hosted **authenticated residential / ISP egress** proxy (SOCKS5 + HTTP CONNECT).
 
-This is **not** a commercial “residential proxy network” and **not** a Cloudflare/Hetzner VPS VPN. Those look like datacenters. This project makes *your* ISP IP available securely to machines you trust.
+Run it on any machine with a real ISP or mobile connection — home fiber, office, LTE hotspot — and expose that IP securely to bots, browsers, and apps you trust. This is **not** a commercial residential proxy marketplace and **not** a Cloudflare/Hetzner VPS VPN. Those look like datacenters. egressd makes *your* ISP IP available to clients you authorize.
 
 ## Status
 
@@ -15,26 +15,26 @@ This is **not** a commercial “residential proxy network” and **not** a Cloud
 ## Quick start
 
 ```bash
-git clone https://github.com/lovrozagar/home-exit.git
-cd home-exit
-cp home-exit.example.yaml home-exit.yaml
+git clone https://github.com/lovrozagar/egressd.git
+cd egressd
+cp egressd.example.yaml egressd.yaml
 
 # Create a client (password printed once; only bcrypt hash is stored)
-go run ./cmd/home-exit users add alice
+go run ./cmd/egressd users add alice
 
 # Show config summary
-go run ./cmd/home-exit status
+go run ./cmd/egressd status
 
 # Start proxy (foreground)
-go run ./cmd/home-exit up
+go run ./cmd/egressd up
 ```
 
 Or build a binary:
 
 ```bash
-go build -o bin/home-exit ./cmd/home-exit
-./bin/home-exit users add alice
-./bin/home-exit up
+go build -o bin/egressd ./cmd/egressd
+./bin/egressd users add alice
+./bin/egressd up
 ```
 
 ### Connect examples
@@ -52,11 +52,11 @@ Anonymous / wrong credentials are rejected. Auth is always required.
 
 Search order:
 
-1. `-config` flag or `HOME_EXIT_CONFIG` env
-2. `./home-exit.yaml`
-3. `~/.config/home-exit/config.yaml`
+1. `-config` flag or `EGRESSD_CONFIG` env
+2. `./egressd.yaml`
+3. `~/.config/egressd/config.yaml`
 
-Defaults (also in `home-exit.example.yaml`):
+Defaults (also in `egressd.example.yaml`):
 
 | Key | Default |
 |---|---|
@@ -64,31 +64,31 @@ Defaults (also in `home-exit.example.yaml`):
 | `listen.http` | `127.0.0.1:8080` |
 | `users.file` | `users.json` (next to the config file) |
 
-`home-exit.yaml` and `users.json` are gitignored — do not commit secrets. Hashes only land in `users.json`.
+`egressd.yaml` and `users.json` are gitignored — do not commit secrets. Hashes only land in `users.json`.
 
 ## CLI
 
 | Command | Description |
 |---|---|
-| `home-exit up` | Start SOCKS5 + HTTP CONNECT (foreground) |
-| `home-exit status` | Print listen addrs / users count (`running` is N/A in v1) |
-| `home-exit users add <name>` | Create user; print random password once |
-| `home-exit users list` | List usernames (no secrets) |
+| `egressd up` | Start SOCKS5 + HTTP CONNECT (foreground) |
+| `egressd status` | Print listen addrs / users count (`running` is N/A in v1) |
+| `egressd users add <name>` | Create user; print random password once |
+| `egressd users list` | List usernames (no secrets) |
 
 ## Security
 
 - Default bind is **localhost only** until you add a tunnel (Tailscale / Cloudflare Tunnel — planned).
 - No anonymous access.
-- Sharing credentials shares your home IP and legal exposure — treat them like SSH keys.
+- Sharing credentials shares your egress IP and legal exposure — treat them like SSH keys.
 - See [`docs/why-not-cloud.md`](docs/why-not-cloud.md).
 
 ## Architecture
 
 ```
-[ Bot / browser ] --SOCKS5/HTTP + auth--> [ home-exit agent ]
+[ Bot / browser ] --SOCKS5/HTTP + auth--> [ egressd agent ]
                                               |
                                               v
-                                      home ISP / mobile IP
+                                      residential / ISP / mobile IP
 ```
 
 ## License

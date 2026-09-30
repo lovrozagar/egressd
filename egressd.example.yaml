@@ -1,9 +1,9 @@
-# Copy to ./home-exit.yaml (gitignored) or ~/.config/home-exit/config.yaml
+# Copy to ./egressd.yaml (gitignored) or ~/.config/egressd/config.yaml
 #
 # Config search order:
-#   1. -config flag / HOME_EXIT_CONFIG env
-#   2. ./home-exit.yaml
-#   3. ~/.config/home-exit/config.yaml
+#   1. -config flag / EGRESSD_CONFIG env
+#   2. ./egressd.yaml
+#   3. ~/.config/egressd/config.yaml
 
 listen:
   socks: 127.0.0.1:1080

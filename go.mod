@@ -1,4 +1,4 @@
-module github.com/lovrozagar/home-exit
+module github.com/lovrozagar/egressd
 
 go 1.22
 

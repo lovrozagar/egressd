@@ -59,7 +59,7 @@ func (s *HTTPServer) handle(conn net.Conn) {
 
 	user, pass, ok := parseBasicAuth(req.Header.Get("Proxy-Authorization"))
 	if !ok || s.Auth == nil || !s.Auth.Authenticate(user, pass) {
-		_, _ = io.WriteString(conn, "HTTP/1.1 407 Proxy Authentication Required\r\nProxy-Authenticate: Basic realm=\"home-exit\"\r\nContent-Length: 0\r\n\r\n")
+		_, _ = io.WriteString(conn, "HTTP/1.1 407 Proxy Authentication Required\r\nProxy-Authenticate: Basic realm=\"egressd\"\r\nContent-Length: 0\r\n\r\n")
 		return
 	}
 

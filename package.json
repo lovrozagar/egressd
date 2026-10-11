@@ -1,0 +1,28 @@
+{
+  "scripts": {
+    "grunt:antigravity": "antigravity --dangerously-skip-permissions",
+    "grunt:claude": "claude --dangerously-skip-permissions",
+    "grunt:codex": "codex --dangerously-bypass-approvals-and-sandbox",
+    "grunt:doctor": "node ./scripts/doctor.mjs",
+    "grunt:gemini": "gemini --yolo",
+    "grunt:grok": "grok --yolo",
+    "grunt:hooks:check": "node scripts/hooks-union.mjs --check",
+    "grunt:hooks:union": "node scripts/hooks-union.mjs",
+    "grunt:purge:global-mcps": "node scripts/purge-global-mcps.mjs",
+    "grunt:purge:global-mcps:apply": "node scripts/purge-global-mcps.mjs --apply",
+    "grunt:rulesync:check": "node ./scripts/guarded-roots.mjs check",
+    "grunt:rulesync:doctor": "rulesync doctor",
+    "grunt:rulesync:generate": "node ./scripts/guarded-roots.mjs generate",
+    "grunt:rulesync:watch": "node ./scripts/guarded-roots.mjs watch",
+    "grunt:setup": "node ./scripts/setup.mjs",
+    "grunt:sync:globals": "node scripts/sync-global-settings.mjs",
+    "grunt:sync:globals:apply": "node scripts/sync-global-settings.mjs --apply",
+    "grunt:sync:globals:check": "node scripts/check-globals.mjs"
+  },
+  "devDependencies": {
+    "@clack/prompts": "^0.11.0",
+    "@lovrozagar/grunt": "0.10.1",
+    "rulesync": "16.17.0",
+    "smol-toml": "^1.8.0"
+  }
+}

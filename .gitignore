@@ -12,3 +12,5 @@ egressd.yaml
 users.json
 users.json.tmp
 **/users.json
+.tmp/
+node_modules/
